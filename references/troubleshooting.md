@@ -1,0 +1,23 @@
+# 常见问题自愈与故障排查指南（Troubleshooting）
+
+本手册指导 AI 助理与用户在遇到 OpenCLI 异常状态时快速定位并自愈。
+
+---
+
+## 故障排查自查表
+
+| 错误代码 / 现象 | 根因分析 | 自愈排查步骤 |
+|---|---|---|
+| **`AUTH_REQUIRED`**<br>(登录墙拦截) | Chrome 浏览器中的小红书登录态已过期，被 302 重定向到 `/login` | 1. 唤醒 Chrome 打开 `https://www.xiaohongshu.com`<br>2. 手机小红书 App 扫码登录账号<br>3. 登录成功后重新运行命令即可 |
+| **`EXTENSION_DISCONNECTED`**<br>(扩展未连接) | Chrome 浏览器未启动，或 OpenCLI 扩展处于未启用状态 | 1. 打开 Chrome 浏览器<br>2. 访问 `chrome://extensions`<br>3. 检查 OpenCLI 扩展右下角开关是否处于开启状态 |
+| **`DAEMON_OFFLINE`**<br>(守护进程未启动) | Node.js 后台守护进程未监听 19825 端口 | 终端执行：`opencli daemon restart` 或 `opencli doctor` 自动唤醒守护服务 |
+| **`EMPTY_RESULT`**<br>(返回无数据) | 1. 传入了未解析的移动端短链 (`xhslink`)<br>2. 笔记已被作者删除/设为私密<br>3. 博主主页确实无公开笔记 | 1. 确认短链是否先调用了 `resolve_shortlink.py` 解析为长链<br>2. 尝试在 Chrome 浏览器中手动打开链接核验是否存在 |
+| **`SECURITY_BLOCK`**<br>(安全限制拦截) | 传入了不带 `xsec_token` 的裸笔记 ID 触发了小红书网关拦截 | 必须先通过 `search` / `feed` / `user` 获取包含 `?xsec_token=...` 的签名 URL 再访问详情 |
+
+---
+
+## 快速自检命令
+当怀疑环境状态时，执行一行命令即可查看全链路健康度：
+```bash
+opencli doctor
+```
