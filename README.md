@@ -39,6 +39,21 @@ flowchart TD
 
 ---
 
+## 核心功能清单与输入输出速查表
+
+| 功能模块 | 对应命令 | 输入参数（Input） | 输出数据（Output） | 核心业务价值 |
+|---|---|---|---|---|
+| **🔍 关键词搜索** | `search` | • `query`：关键词<br>• `--limit`：条数（默认 20） | • `rank`：排名序号<br>• `title`：笔记标题<br>• `author`：博主昵称<br>• `author_url`：博主签名主页<br>• `likes`：点赞数<br>• `published_at`：发布日期<br>• `url`：带 `xsec_token` 的笔记直链 | 行业热点追踪、爆款选题挖掘、对标竞品检索 |
+| **🧭 首页推荐流** | `feed` | • `--limit`：条数（默认 20） | • `id`：笔记 ID<br>• `title`：笔记标题<br>• `type`：`normal` 图文 / `video` 视频<br>• `author`：博主昵称<br>• `likes`：点赞数<br>• `url`：带 `xsec_token` 的推荐流直链 | 平台算法风向感知、垂直领域最新素材监控 |
+| **👤 博主主页作品** | `user` | • `id`：24 位博主 ID 或主页 URL 或**手机短链**<br>• `--limit`：条数（默认 15） | • `id`：笔记 ID<br>• `title`：作品标题<br>• `type`：图文/视频类型<br>• `likes`：点赞数<br>• `cover`：高清封面 CDN 原图直链<br>• `url`：带 `xsec_token` 的作品直链 | 对标博主深度调研、博主全部作品归档分析 |
+| **📖 单篇正文详情** | `note` | • `note-id`：带 `xsec_token` 的笔记直链或**手机短链** | • `title`：完整标题<br>• `author`：作者昵称<br>• `content`：**全文长文正文（保留段落与格式）**<br>• `likes`：点赞数<br>• `collects`：收藏数<br>• `comments`：评论数<br>• `tags`：所有 `#话题标签` 列表 | 深度干货长文精读、Prompt 与行业方法论提炼 |
+| **💾 媒体高清下载** | `download` | • `note-id`：带签名的笔记 URL 或**手机短链**<br>• `--output`：本地保存目录 | • **图文笔记**：按轮播顺序无水印原图（`1.jpg`, `2.jpg`...）<br>• **视频笔记**：原始 1080P/720P 高清 `.mp4` 视频与封面大图 | 多模态 Vision 大模型看图分析、Whisper 视频语音转文字 |
+| **💬 楼中楼评论树** | `comments` | • `note-id`：带签名的笔记 URL<br>• `--with-replies`：是否展开楼中楼<br>• `--limit`：条数（默认 20） | • `author`：评论者昵称<br>• `userId`：用户 ID<br>• `text`：评论内容<br>• `likes`：点赞数<br>• `time`：发布时间 + **IP 归属省份/国家**<br>• `is_reply`：是否为楼中楼子回复<br>• `reply_to`：**被回复人昵称（树状追溯）**<br>• `images`：评论晒图 CDN 列表 | 用户真实痛点挖掘、舆情风向分析、评论区互动复刻 |
+| **🔗 短链自动解析** | 内置中间件 | • 手机 App 复制的任意文案或 `xhslink` 短链 | • `type`：`user` 博主 / `note` 笔记<br>• `user_id`：24 位博主 ID<br>• `note_id`：24 位笔记 ID<br>• `full_url`：302 重定向后的标准签名长链 | 消除移动端与 PC 端差异，随手粘贴即可无感抓取 |
+
+---
+
+
 ## 文件目录结构
 
 ```text

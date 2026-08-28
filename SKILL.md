@@ -15,10 +15,12 @@ argument-hint: [keyword-or-note-url-or-user-id]
 
 ## Required Inputs
 根据用户业务需求，接收以下至少一种输入：
-1. **搜索关键词**：如 `"DeepSeek 实操"`、`"AI 智能体落地"`；
-2. **小红书笔记 URL / 移动端短链**：如 `https://www.xiaohongshu.com/explore/xxx?xsec_token=yyy` 或 `https://xhslink.cn/a/xxx`；
-3. **博主 ID / 主页短链**：如 `5f310fd50000000001009df5` 或 `https://xhslink.cn/m/xxx`；
-4. **推荐流抓取指令**：如“获取首页推荐最新笔记”。
+1. **搜索关键词（Search Query）**：如 `"DeepSeek 实操"`、`"AI 智能体落地"`（支持可选 `--limit`，默认 20 条）；
+2. **小红书笔记 URL / 移动端短链（Note URL / Shortlink）**：如 `https://www.xiaohongshu.com/explore/xxx?xsec_token=yyy` 或 `https://xhslink.cn/a/xxx`；
+3. **博主 ID / 主页短链（User ID / Profile Shortlink）**：如 `5f310fd50000000001009df5` 或 `https://xhslink.cn/m/xxx`（支持可选 `--limit`，默认 15 条）；
+4. **推荐流抓取指令（Feed Instruction）**：如“获取首页推荐最新笔记”（支持可选 `--limit`，默认 20 条）；
+5. **媒体下载路径（Download Output Dir）**：如 `--output "./xhs_media"`；
+6. **评论抓取修饰符（Comments Modifier）**：如 `--with-replies`（开启楼中楼子回复）。
 
 ---
 
@@ -91,12 +93,20 @@ flowchart TD
 
 ## Output Requirements
 
-1. **单篇正文输出规范**：
-   包含标题、作者、长文本正文段落（保留排版）、点赞/收藏/评论互动数据、所有 `#话题标签`。
-2. **评论树输出规范**：
-   清晰体现一级根评论与楼中楼子回复关系（标明 `reply_to`），并附带用户 IP 属地。
-3. **媒体下载输出规范**：
-   清晰列出下载文件的本地绝对路径、文件格式（MP4/JPG）与体积大小。
+根据调用的子命令，严格输出如下规范化结构：
+
+1. **搜索结果列表（Search Output）**：
+   每项包含 `rank`（序号）、`title`（标题）、`author`（博主）、`author_url`（带签名博主主页）、`likes`（点赞）、`published_at`（发布时间）、`url`（带 `xsec_token` 签名直链）。
+2. **推荐流列表（Feed Output）**：
+   每项包含 `id`、`title`、`type`（`normal` 图文 / `video` 视频）、`author`、`likes`、`url`（带签名直链）。
+3. **博主作品列表（User Output）**：
+   每项包含 `id`、`title`、`type`、`likes`、`cover`（封面原图 CDN）、`url`（带签名直链）。
+4. **单篇笔记正文详情（Note Output）**：
+   包含 `title`（标题）、`author`（作者）、`content`（**完整长文正文与文案**）、`likes`/`collects`/`comments`（互动数据）、`tags`（所有 `#话题标签`）。
+5. **媒体下载产物（Download Output）**：
+   清晰列出下载文件的本地绝对路径、文件类型（图文轮播 `1.jpg` / 视频 `1.mp4`）与体积大小。
+6. **评论树对话树（Comments Output）**：
+   包含 `author`、`userId`、`text`、`likes`、`time`（含 IP 属地）、`is_reply`（是否为子回复）、`reply_to`（**被回复人昵称**）、`images`（评论晒图）。
 
 ---
 
