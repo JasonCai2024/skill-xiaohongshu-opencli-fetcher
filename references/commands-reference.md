@@ -1,20 +1,22 @@
 # OpenCLI 小红书命令全量参考手册
 
-本文档记录 OpenCLI 小红书各子命令的精确入参、参数修饰符以及经真实环境实测的 100% 对应数据结构。
+本文档记录小红书各子命令的精确入参、参数修饰符以及经真实环境实测的 100% 对应数据结构。
 
 ---
 
 ## 一、命令清单与流水线分类
 
-| 命令 | 分类 | 功能描述 | 依赖前提 |
+| 功能分类 | 🌟 Python 统一外壳调用（推荐） | OpenCLI 原生底层命令 | 依赖前提 |
 |---|---|---|---|
-| `doctor` | 探活诊断 | 检查后台 Daemon 与 Chrome 扩展连接状态 | 无 |
-| `search` | 前置列表 | 关键词检索前 20 条笔记卡片与博主签名链接 | 需已登录 |
-| `feed` | 前置列表 | 获取首页个性化推荐流（包含图文/视频类型） | 需已登录 |
-| `user` | 前置列表 | 抓取指定博主主页最新 15 篇作品与高清封面 | 需已登录 |
-| `note` | 后置消费 | 读取单篇笔记正文长文、点赞/收藏数据与话题标签 | 需传入带签名 URL |
-| `download` | 后置消费 | 批量下载图文所有多图原图或原始高清 MP4 视频 | 需传入带签名 URL |
-| `comments` | 后置消费 | 抓取单篇笔记全部一级评论与楼中楼子回复对话树 | 需传入带签名 URL |
+| 探活诊断 | `opencli doctor` | `opencli doctor` | 无 |
+| 关键词搜索 | `python scripts/xhs_fetcher.py search "<query>" --limit 20` | `opencli xiaohongshu search "<query>" --limit 20 -f yaml` | 需已登录 |
+| 首页推荐流 | `python scripts/xhs_fetcher.py feed --limit 20` | `opencli xiaohongshu feed --limit 20 -f yaml` | 需已登录 |
+| 博主主页作品 | `python scripts/xhs_fetcher.py user "<user_id>" --limit 15` | `opencli xiaohongshu user <user_id> --limit 15 -f yaml` | 需已登录 |
+| 单篇正文长文 | `python scripts/xhs_fetcher.py note "<signed_url>"` | `opencli xiaohongshu note "<signed_url>" -f yaml` | 需传入带签名 URL |
+| 多图/视频下载 | `python scripts/xhs_fetcher.py download "<signed_url>" --output "<dir>"` | `opencli xiaohongshu download "<signed_url>" --output "<dir>" -f yaml` | 需传入带签名 URL |
+| 快速评论抽样 | `python scripts/xhs_fetcher.py comments "<signed_url>"` | `opencli xiaohongshu comments "<signed_url>" --with-replies -f yaml` | 需传入带签名 URL |
+| 全量深度抓取 | `python scripts/full_comments_fetcher.py "<url>" --limit 500` | - | 需传入带签名 URL |
+| 高价值评论分析 | `python scripts/analyze_comments.py "<url>" --title "<标题>"` | - | 需传入 URL 或本地 JSON |
 
 ---
 

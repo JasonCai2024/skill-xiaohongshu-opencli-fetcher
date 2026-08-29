@@ -39,13 +39,13 @@ flowchart TD
     CheckHealth -->|"否"| GuideUser["输出自愈引导提示（启动浏览器/登录账号）"]
     CheckHealth -->|"是"| Normalize["第 1 步：入参标准化与短链自动解析 (resolve_shortlink.py)"]
     
-    Normalize --> Route{"第 2 步：业务指令路由"}
-    Route -->|"搜索需求"| RunSearch["opencli xiaohongshu search <关键词> -f yaml"]
-    Route -->|"推荐需求"| RunFeed["opencli xiaohongshu feed -f yaml"]
-    Route -->|"博主作品"| RunUser["opencli xiaohongshu user <博主ID> -f yaml"]
-    Route -->|"正文详情"| RunNote["opencli xiaohongshu note <签名URL> -f yaml"]
-    Route -->|"媒体下载"| RunDownload["opencli xiaohongshu download <签名URL> --output <目录> -f yaml"]
-    Route -->|"评论抓取"| RunComments["opencli xiaohongshu comments <签名URL> --with-replies -f yaml"]
+    Normalize --> Route{"第 2 步：业务指令路由 (优先使用 Python 统一外壳)"}
+    Route -->|"搜索需求"| RunSearch["python scripts/xhs_fetcher.py search <关键词> --limit 20"]
+    Route -->|"推荐需求"| RunFeed["python scripts/xhs_fetcher.py feed --limit 20"]
+    Route -->|"博主作品"| RunUser["python scripts/xhs_fetcher.py user <博主ID> --limit 15"]
+    Route -->|"正文详情"| RunNote["python scripts/xhs_fetcher.py note <签名URL>"]
+    Route -->|"媒体下载"| RunDownload["python scripts/xhs_fetcher.py download <签名URL> --output <目录>"]
+    Route -->|"评论抓取"| RunComments["python scripts/xhs_fetcher.py comments <签名URL>"]
     Route -->|"评论深度分析"| RunAnalyze["python scripts/analyze_comments.py <签名URL>"]
     
     RunSearch & RunFeed & RunUser --> DrillDown{"需进一步深入详情?"}
@@ -74,16 +74,21 @@ flowchart TD
 - 调用内置脚本 `python scripts/resolve_shortlink.py "<短链>"`；
 - 自动跟随 302 重定向提取出 24 位博主 ID 或包含 `xsec_token` 的完整 Web 长链。
 
-### 步骤 2：核心命令调度执行
-根据用户需求精准调用 OpenCLI 命令（详细参数见 [Commands Reference](references/commands-reference.md)）：
-- **关键词搜索**：`opencli xiaohongshu search "<query>" --limit 20 -f yaml`
-- **首页推荐流**：`opencli xiaohongshu feed --limit 20 -f yaml`
-- **博主个人主页**：`opencli xiaohongshu user <user_id> --limit 15 -f yaml`
-- **单篇笔记正文**：`opencli xiaohongshu note "<signed_url>" -f yaml`
-- **多图/视频下载**：`opencli xiaohongshu download "<signed_url>" --output "<dir>" -f yaml`
-- **快速评论抽样（约75条）**：`opencli xiaohongshu comments "<signed_url>" --with-replies -f yaml`
-- **深度全量评论抓取（Web端极限：10大主楼+全部楼中楼约140~150条）**：`python scripts/full_comments_fetcher.py "<signed_url>" --limit 500 -o output.json`
-- **🧠 爆款高价值评论全景分析（自动降噪+4维度全量呈现+人群画像）**：`python scripts/analyze_comments.py "<signed_url>" --title "<笔记标题>"`
+### 步骤 2：核心命令调度执行（统一 Python 外壳调度）
+根据用户需求精准调用技能内置脚本（底层全自动完成会员验签、Node.js 警告压制与 Windows 路径自适应）：
+
+| 业务需求 | 🌟 推荐标准调用命令（Python 统一外壳） | 底层等效命令（OpenCLI 原生） |
+|---|---|---|
+| **关键词搜索** | `python scripts/xhs_fetcher.py search "<query>" --limit 20` | `opencli xiaohongshu search "<query>" --limit 20 -f yaml` |
+| **首页推荐流** | `python scripts/xhs_fetcher.py feed --limit 20` | `opencli xiaohongshu feed --limit 20 -f yaml` |
+| **博主主页作品** | `python scripts/xhs_fetcher.py user "<user_id>" --limit 15` | `opencli xiaohongshu user <user_id> --limit 15 -f yaml` |
+| **单篇笔记正文** | `python scripts/xhs_fetcher.py note "<signed_url>"` | `opencli xiaohongshu note "<signed_url>" -f yaml` |
+| **多图/视频下载** | `python scripts/xhs_fetcher.py download "<signed_url>" --output "<dir>"` | `opencli xiaohongshu download "<signed_url>" --output "<dir>" -f yaml` |
+| **快速评论抽样（约75条）** | `python scripts/xhs_fetcher.py comments "<signed_url>"` | `opencli xiaohongshu comments "<signed_url>" --with-replies -f yaml` |
+| **全量深度评论抓取（140~150条）** | `python scripts/full_comments_fetcher.py "<signed_url>" --limit 500 -o output.json` | - |
+| **🧠 爆款高价值评论全景分析** | `python scripts/analyze_comments.py "<signed_url>" --title "<笔记标题>"` | - |
+
+*(注：建议 AI 助理优先调用 `python scripts/xhs_fetcher.py` 系列命令，可自动处理跨平台路径与输出格式化)*
 
 ### 步骤 3：数据清洗与综合交付
 - 将抓取的 YAML/JSON 数据整合为结构化摘要；
@@ -165,21 +170,21 @@ flowchart TD
 ### 示例 1：热点搜索与前排正文分析
 - **用户 Prompt**：“帮我搜一下小红书上关于 DeepSeek 的最新热门笔记，并把点赞最高的一篇正文读出来。”
 - **助理行为**：
-  1. 执行 `opencli xiaohongshu search "DeepSeek" -f yaml` 获得 20 篇带签名笔记；
+  1. 执行 `python scripts/xhs_fetcher.py search "DeepSeek" --limit 20` 获得 20 篇带签名笔记；
   2. 选取 rank 1 的笔记 URL；
-  3. 执行 `opencli xiaohongshu note "<rank1_url>" -f yaml` 抓取正文；
+  3. 执行 `python scripts/xhs_fetcher.py note "<rank1_url>"` 抓取正文；
   4. 提炼核心观点并交付结构化总结。
 
 ### 示例 2：手机短链博主深度调研
 - **用户 Prompt**：“我想看这个博主的所有作品：`https://xhslink.cn/m/uWP0uFkbut`”
 - **助理行为**：
-  1. 调用 `scripts/resolve_shortlink.py` 解析短链得到博主 ID `69c28b290000000033005c9c`；
-  2. 执行 `opencli xiaohongshu user 69c28b290000000033005c9c -f yaml` 获取 15 篇作品列表；
+  1. 调用 `python scripts/resolve_shortlink.py "https://xhslink.cn/m/uWP0uFkbut"` 解析短链得到博主 ID `69c28b290000000033005c9c`；
+  2. 执行 `python scripts/xhs_fetcher.py user 69c28b290000000033005c9c --limit 15` 获取 15 篇作品列表；
   3. 为用户分类梳理该博主的选题方向与爆款数据。
 
-### 示例 3：视频与多图素材下载
-- **用户 Prompt**：“把这篇小红书笔记的高清视频下载到本地 `D:/xhs/`：`https://www.xiaohongshu.com/explore/...`”
+### 示例 3：爆款评论区 100% 全景洞察
+- **用户 Prompt**：“请对这篇笔记的评论区进行深度分析：`https://www.xiaohongshu.com/explore/...`”
 - **助理行为**：
-  1. 执行 `opencli xiaohongshu download "<url>" --output "D:/xhs/" -f yaml`；
-  2. 自动下载无水印 `.mp4` 原始视频和封面；
-  3. 反馈下载完成的文件列表与路径。
+  1. 执行 `python scripts/analyze_comments.py "https://www.xiaohongshu.com/explore/..." --title "..."`；
+  2. 自动完成全量楼中楼展开与智能降噪；
+  3. 输出 3 板块全景洞察报告。
