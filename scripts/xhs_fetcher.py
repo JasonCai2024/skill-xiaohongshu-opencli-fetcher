@@ -1,95 +1,122 @@
 # -*- coding: utf-8 -*-
 """
-OpenCLI 小红书全能力 Python 封装调用工具
-提供结构化 JSON / Dict 返回，内置短链解析与命令编排
+小红书 OpenCLI 全功能统一调用门面 (公开开源外壳)
+核心引擎由 ServiceHub 加密核心模块 (_xhs_core) 驱动，仅限会员使用。
 """
-import subprocess
-import json
-import shutil
 import sys
-from resolve_shortlink import resolve_xhs_url
+import json
+import argparse
+import pathlib
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except:
+        pass
+
+# 引入核心加密模块
+current_dir = pathlib.Path(__file__).parent.resolve()
+sys.path.insert(0, str(current_dir))
+try:
+    from _xhs_core import OpenCLIDispatcher, ShortlinkResolver, ServiceHubAuth
+except ImportError as e:
+    print(f"❌ [错误] 核心加密模块加载失败: {e}\n👉 请确保 scripts/_xhs_core 目录完整。")
+    sys.exit(1)
 
 class XhsFetcher:
-    def __init__(self):
-        if not shutil.which("opencli"):
-            raise RuntimeError("未检测到 opencli 命令行工具，请先执行: npm install -g @jackwener/opencli")
+    @staticmethod
+    def search(query: str, limit: int = 20):
+        return OpenCLIDispatcher.search(query, limit)
 
-    def _run_cmd(self, args: list) -> str:
-        cmd = ["opencli", "xiaohongshu"] + args + ["-f", "json"]
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-        if res.returncode != 0:
-            raise RuntimeError(f"OpenCLI 命令执行失败: {res.stderr or res.stdout}")
-        return res.stdout
+    @staticmethod
+    def feed(limit: int = 20):
+        return OpenCLIDispatcher.feed(limit)
 
-    def doctor(self) -> str:
-        res = subprocess.run(["opencli", "doctor"], capture_output=True, text=True, encoding="utf-8")
-        return res.stdout
+    @staticmethod
+    def user(user_id_or_url: str, limit: int = 15):
+        return OpenCLIDispatcher.user(user_id_or_url, limit)
 
-    def search(self, query: str, limit: int = 20):
-        out = self._run_cmd(["search", query, "--limit", str(limit)])
-        return json.loads(out)
+    @staticmethod
+    def note(note_url_or_shortlink: str):
+        return OpenCLIDispatcher.note(note_url_or_shortlink)
 
-    def feed(self, limit: int = 20):
-        out = self._run_cmd(["feed", "--limit", str(limit)])
-        return json.loads(out)
+    @staticmethod
+    def download(note_url_or_shortlink: str, output_dir: str = None):
+        return OpenCLIDispatcher.download(note_url_or_shortlink, output_dir)
 
-    def user(self, user_or_url: str, limit: int = 15):
-        if "xhslink" in user_or_url:
-            resolved = resolve_xhs_url(user_or_url)
-            user_target = resolved["user_id"] or resolved["full_url"]
-        else:
-            user_target = user_or_url
-        out = self._run_cmd(["user", user_target, "--limit", str(limit)])
-        return json.loads(out)
+    @staticmethod
+    def comments(note_url_or_shortlink: str, with_replies: bool = True, limit: int = 20):
+        return OpenCLIDispatcher.comments(note_url_or_shortlink, with_replies, limit)
 
-    def note(self, note_or_url: str):
-        if "xhslink" in note_or_url:
-            resolved = resolve_xhs_url(note_or_url)
-            note_url = resolved["full_url"]
-        else:
-            note_url = note_or_url
-        out = self._run_cmd(["note", note_url])
-        return json.loads(out)
+    @staticmethod
+    def full_comments(note_url_or_shortlink: str, max_rounds: int = 40):
+        return OpenCLIDispatcher.full_comments(note_url_or_shortlink, max_rounds)
 
-    def download(self, note_or_url: str, output_dir: str = "./xhs_downloads"):
-        if "xhslink" in note_or_url:
-            resolved = resolve_xhs_url(note_or_url)
-            target_url = resolved["full_url"]
-        else:
-            target_url = note_or_url
-        cmd = ["opencli", "xiaohongshu", "download", target_url, "--output", output_dir, "-f", "json"]
-        res = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
-        if res.returncode != 0:
-            raise RuntimeError(f"下载失败: {res.stderr or res.stdout}")
-        return json.loads(res.stdout)
-
-    def comments(self, note_or_url: str, with_replies: bool = True, limit: int = 50, use_mobile: bool = True):
-        """
-        获取单篇笔记评论树（标准快速模式）
-        """
-        if "xhslink" in note_or_url:
-            resolved = resolve_xhs_url(note_or_url)
-            note_url = resolved["full_url"]
-        else:
-            note_url = note_or_url
-            
-        if use_mobile and "www.xiaohongshu.com" in note_url:
-            note_url = note_url.replace("www.xiaohongshu.com", "m.xiaohongshu.com")
-
-        args = ["comments", note_url, "--limit", str(limit)]
-        if with_replies:
-            args.append("--with-replies")
-        out = self._run_cmd(args)
-        return json.loads(out)
-
-    def full_comments(self, note_or_url: str, limit: int = 500, with_replies: bool = True) -> dict:
-        """
-        全量抓取单篇笔记全部评论（增强模式，支持数百条全量深度采集）
-        """
-        from full_comments_fetcher import fetch_full_comments
-        return fetch_full_comments(note_url=note_or_url, max_comments=limit, with_replies=with_replies)
+    @staticmethod
+    def resolve_shortlink(url_or_text: str):
+        return ShortlinkResolver.resolve(url_or_text)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="小红书数据抓取工具 (ServiceHub 会员专享)")
+    subparsers = parser.add_subparsers(dest="command", help="子命令")
+
+    p_search = subparsers.add_parser("search", help="关键词搜索")
+    p_search.add_argument("query", help="搜索关键词")
+    p_search.add_argument("--limit", type=int, default=20, help="返回条数")
+
+    p_feed = subparsers.add_parser("feed", help="首页推荐流")
+    p_feed.add_argument("--limit", type=int, default=20, help="返回条数")
+
+    p_user = subparsers.add_parser("user", help="博主作品")
+    p_user.add_argument("target", help="博主 ID、主页 URL 或短链")
+    p_user.add_argument("--limit", type=int, default=15, help="返回条数")
+
+    p_note = subparsers.add_parser("note", help="单篇笔记详情")
+    p_note.add_argument("target", help="笔记 URL 或短链")
+
+    p_download = subparsers.add_parser("download", help="下载多图或视频")
+    p_download.add_argument("target", help="笔记 URL 或短链")
+    p_download.add_argument("--output", help="输出目录")
+
+    p_comments = subparsers.add_parser("comments", help="抓取评论")
+    p_comments.add_argument("target", help="笔记 URL 或短链")
+    p_comments.add_argument("--no-replies", action="store_true", help="不展开楼中楼")
+    p_comments.add_argument("--limit", type=int, default=20, help="返回条数")
+
+    p_full = subparsers.add_parser("full_comments", help="全量深度抓取评论")
+    p_full.add_argument("target", help="笔记 URL 或短链")
+    p_full.add_argument("--limit", type=int, default=500, help="采集深度")
+    p_full.add_argument("-o", "--output", help="输出 JSON 文件路径")
+
+    p_resolve = subparsers.add_parser("resolve", help="解析短链")
+    p_resolve.add_argument("text", help="短链或包含短链的文案")
+
+    args = parser.parse_args()
+
     fetcher = XhsFetcher()
-    print("OpenCLI 环境自检:")
-    print(fetcher.doctor())
+    if args.command == "search":
+        print(json.dumps(fetcher.search(args.query, args.limit), ensure_ascii=False, indent=2))
+    elif args.command == "feed":
+        print(json.dumps(fetcher.feed(args.limit), ensure_ascii=False, indent=2))
+    elif args.command == "user":
+        print(json.dumps(fetcher.user(args.target, args.limit), ensure_ascii=False, indent=2))
+    elif args.command == "note":
+        print(json.dumps(fetcher.note(args.target), ensure_ascii=False, indent=2))
+    elif args.command == "download":
+        print(json.dumps(fetcher.download(args.target, args.output), ensure_ascii=False, indent=2))
+    elif args.command == "comments":
+        print(json.dumps(fetcher.comments(args.target, not args.no_replies, args.limit), ensure_ascii=False, indent=2))
+    elif args.command == "full_comments":
+        data = fetcher.full_comments(args.target)
+        if args.output:
+            out_p = pathlib.Path(args.output).resolve()
+            out_p.parent.mkdir(parents=True, exist_ok=True)
+            out_p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"[+] 数据已保存至: {out_p}")
+        else:
+            print(json.dumps(data, ensure_ascii=False, indent=2))
+    elif args.command == "resolve":
+        print(json.dumps(fetcher.resolve_shortlink(args.text), ensure_ascii=False, indent=2))
+    else:
+        parser.print_help()

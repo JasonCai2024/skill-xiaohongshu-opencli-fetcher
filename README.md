@@ -99,14 +99,25 @@ npm install -g @jackwener/opencli
    ```
    看到 `[OK] Connectivity: connected` 即表示全链路就绪！
 
+### 4. 🔒 ServiceHub 会员专属授权激活
+本技能核心底层驱动引擎已进行工业级二进制加密保护，专属于 **ServiceHub** 平台会员：
+1. 复制根目录的 `.env.example` 为 `.env`；
+2. 填入您的 ServiceHub 远程服务器地址与会员账号密码：
+   ```env
+   SERVICEHUB_BASE_URL=http://localhost:8000
+   SERVICEHUB_USERNAME=您的ServiceHub会员账号
+   SERVICEHUB_PASSWORD=您的ServiceHub密码或Token
+   ```
+3. 验证通过后即可永久畅享搜索、博主爬取、笔记解析与全量高价值评论分析！
+
 ---
 
 ## 凭证安全与隔离规范
 
 本技能基于纯本地真实桌面浏览器扩展通信机制：
-- **零凭证存储**：不记录、不保存、不上传任何 Cookie、Token、账号或密码；
-- **环境隔离**：`.env.example` 为规范占位，`.gitignore` 严格忽略所有临时日志、媒体下载产物与本地凭证变体；
-- **绝对安全**：一切请求完全继承您本机日常使用的真实浏览器指纹与安全会话。
+- **小红书零凭证存储**：不记录、不保存、不上传任何小红书 Cookie、Token、账号或密码；
+- **ServiceHub 鉴权隔离**：本地 `.env` 严格被 `.gitignore` 忽略，安全隔离会员私有凭据；
+- **环境安全**：一切小红书请求完全继承您本机日常使用的真实浏览器指纹与安全会话。
 
 ## ⚠️ 平台级数据边界与评论抓取限制说明（AI 助理必读）
 

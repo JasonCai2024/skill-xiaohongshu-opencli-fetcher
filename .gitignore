@@ -22,3 +22,7 @@ xhs_media/
 # 日志与跟踪文件
 *.log
 trace-*.json
+
+# 私有核心未加密源码 (严禁上传 GitHub)
+src_core/
+build_core.py
