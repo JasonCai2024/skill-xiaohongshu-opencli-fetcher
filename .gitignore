@@ -7,9 +7,14 @@
 
 # Python 缓存
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
 *$py.class
 .pytest_cache/
+
+# 确保核心加密二进制正常提交
+!scripts/_xhs_core/**/*.pyd
+!scripts/_xhs_core/**/*.so
 
 # 媒体下载临时目录
 xiaohongshu-downloads/
