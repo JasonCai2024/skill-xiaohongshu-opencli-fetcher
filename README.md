@@ -49,7 +49,8 @@ flowchart TD
 | **📖 单篇正文详情** | `note` | • `note-id`：带 `xsec_token` 的笔记直链或**手机短链** | • `title`：完整标题<br>• `author`：作者昵称<br>• `content`：**全文长文正文（保留段落与格式）**<br>• `likes`：点赞数<br>• `collects`：收藏数<br>• `comments`：评论数<br>• `tags`：所有 `#话题标签` 列表 | 深度干货长文精读、Prompt 与行业方法论提炼 |
 | **💾 媒体高清下载** | `download` | • `note-id`：带签名的笔记 URL 或**手机短链**<br>• `--output`：本地保存目录 | • **图文笔记**：按轮播顺序无水印原图（`1.jpg`, `2.jpg`...）<br>• **视频笔记**：原始 1080P/720P 高清 `.mp4` 视频与封面大图 | 多模态 Vision 大模型看图分析、Whisper 视频语音转文字 |
 | **💬 楼中楼评论树** | `comments` | • `note-id`：带签名的笔记 URL<br>• `--with-replies`：是否展开楼中楼<br>• `--limit`：条数（默认 20） | • `author`：评论者昵称<br>• `userId`：用户 ID<br>• `text`：评论内容<br>• `likes`：点赞数<br>• `time`：发布时间 + **IP 归属省份/国家**<br>• `is_reply`：是否为楼中楼子回复<br>• `reply_to`：**被回复人昵称（树状追溯）**<br>• `images`：评论晒图 CDN 列表 | 用户真实痛点挖掘、舆情风向分析、评论区互动复刻 |
-| **🔥 全量评论深度抓取** | `full_comments_fetcher.py` | • `url`：笔记 URL 或手机短链<br>• `--limit`：条数（支持 300/500/全量） | • `total`：采集评论总条数（实测可抓 **289+ 条**）<br>• `parentCount`：一级根楼层总数<br>• `comments`：包含全部楼中楼展开的多层级对话数组 | 突破单次 50 条上限，实现长笔记数百条全量评论地毯式采集 |
+| **🔥 全量评论深度抓取** | `full_comments_fetcher.py` | • `url`：笔记 URL 或手机短链<br>• `--limit`：条数（默认 500） | • `total`：采集评论总条数（Web 极限 140~150 条）<br>• `parentCount`：10 大核心主楼层<br>• `comments`：包含全部 130+ 楼中楼展开的完整对话数组 | 突破单次 50 条上限，实现长笔记全部可见评论地毯式采集 |
+| **🧠 爆款高价值评论全景分析** | `analyze_comments.py` | • `input`：笔记 URL、短链或已抓取的 JSON 文件<br>• `--title`：笔记标题 | • **三大标准板块全景洞察报告**：<br>1. 评论生态与降噪量化速览<br>2. 4 大高价值维度全量原声清单 (100% 罗列)<br>3. 4 类高价值发表者人群靶向切片画像 | 智能降噪、拒绝主观臆断、100% 原声呈现，直击真实需求、商业截流与行业内幕 |
 | **🔗 短链自动解析** | 内置中间件 | • 手机 App 复制的任意文案或 `xhslink` 短链 | • `type`：`user` 博主 / `note` 笔记<br>• `user_id`：24 位博主 ID<br>• `note_id`：24 位笔记 ID<br>• `full_url`：302 重定向后的标准签名长链 | 消除移动端与 PC 端差异，随手粘贴即可无感抓取 |
 
 ---
@@ -58,17 +59,19 @@ flowchart TD
 
 ```text
 skill-xiaohongshu-opencli-fetcher/
-├─ SKILL.md                              # 技能主工作说明书 (指令、约束与决策流)
+├─ SKILL.md                              # 技能主工作说明书 (指令、约束、决策流与分析触发准则)
 ├─ README.md                             # 本说明文件 (项目介绍、安装指引、决策表)
 ├─ .env.example                          # 凭据隔离规范示例
 ├─ .gitignore                            # 忽略本地临时文件与媒体产物
 ├─ scripts/
 │  ├─ resolve_shortlink.py               # 移动端 302 分享短链自动解析中间件
-│  ├─ full_comments_fetcher.py           # 全量评论深度抓取工具 (突破 50 条上限，实测抓 289+ 条)
+│  ├─ full_comments_fetcher.py           # 全量评论深度抓取工具 (Web 极限 140~150 条全量采集)
+│  ├─ analyze_comments.py                # 爆款高价值评论全景深度分析与 3 板块报告生成器
 │  └─ xhs_fetcher.py                     # 全功能 Python 封装与调度工具
 └─ references/
    ├─ opencli-setup-guide.md             # 3 步环境安装与配置 SOP
    ├─ commands-reference.md              # 核心命令参数与实测数据结构手册
+   ├─ comment-analysis-framework.md      # 小红书爆款高价值评论全景分析框架标准
    └─ troubleshooting.md                 # 常见错误自愈排查指南
 ```
 
