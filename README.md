@@ -1,6 +1,9 @@
 # 小红书 OpenCLI 数据获取助手（Skill: skill-xiaohongshu-opencli-fetcher）
 
 > 专为 AI 智能体打造的**免维护、零风控、全功能**小红书数据采集与高价值评论深度分析技能。
+> 
+> 🔗 **GitHub 开源仓库**：[https://github.com/JasonCai2024/skill-xiaohongshu-opencli-fetcher](https://github.com/JasonCai2024/skill-xiaohongshu-opencli-fetcher)  
+> 📦 **Git 克隆安装**：`git clone https://github.com/JasonCai2024/skill-xiaohongshu-opencli-fetcher.git`
 
 ---
 
@@ -60,6 +63,12 @@
 ---
 
 ## 🛠️ 四、首次使用配置（只需 1 次，终身免维护）
+
+### 0. 克隆或下载技能到本地
+在终端执行 Git 克隆命令将本技能下载至本地或智能体工作区：
+```bash
+git clone https://github.com/JasonCai2024/skill-xiaohongshu-opencli-fetcher.git
+```
 
 ### 1. 🔒 配置 ServiceHub 会员凭证（核心门禁）
 本技能核心底层驱动受 ServiceHub 会员体系保护，使用前请配置您的会员账号：
