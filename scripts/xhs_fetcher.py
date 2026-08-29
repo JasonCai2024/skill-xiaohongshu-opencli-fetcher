@@ -65,9 +65,7 @@ class XhsFetcher:
 
     def comments(self, note_or_url: str, with_replies: bool = True, limit: int = 50, use_mobile: bool = True):
         """
-        获取单篇笔记评论树
-        :param use_mobile: 默认 True。自动切换为 m.xiaohongshu.com 移动端模式，
-                           可自动展开更多楼中楼子回复，将样本量从 18 条暴增至 75+ 条（提升 4 倍以上）
+        获取单篇笔记评论树（标准快速模式）
         """
         if "xhslink" in note_or_url:
             resolved = resolve_xhs_url(note_or_url)
@@ -75,7 +73,6 @@ class XhsFetcher:
         else:
             note_url = note_or_url
             
-        # 核心优化：自动切换为 m.xiaohongshu.com 以展开最多楼中楼
         if use_mobile and "www.xiaohongshu.com" in note_url:
             note_url = note_url.replace("www.xiaohongshu.com", "m.xiaohongshu.com")
 
@@ -84,6 +81,13 @@ class XhsFetcher:
             args.append("--with-replies")
         out = self._run_cmd(args)
         return json.loads(out)
+
+    def full_comments(self, note_or_url: str, limit: int = 500, with_replies: bool = True) -> dict:
+        """
+        全量抓取单篇笔记全部评论（增强模式，支持数百条全量深度采集）
+        """
+        from full_comments_fetcher import fetch_full_comments
+        return fetch_full_comments(note_url=note_or_url, max_comments=limit, with_replies=with_replies)
 
 if __name__ == "__main__":
     fetcher = XhsFetcher()

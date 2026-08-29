@@ -68,7 +68,8 @@ flowchart TD
 - **博主个人主页**：`opencli xiaohongshu user <user_id> --limit 15 -f yaml`
 - **单篇笔记正文**：`opencli xiaohongshu note "<signed_url>" -f yaml`
 - **多图/视频下载**：`opencli xiaohongshu download "<signed_url>" --output "<dir>" -f yaml`
-- **楼中楼评论树**：`opencli xiaohongshu comments "<signed_url>" --with-replies -f yaml`
+- **快速楼中楼评论树（约75条）**：`opencli xiaohongshu comments "<signed_url>" --with-replies -f yaml`
+- **全量深度评论抓取（200~300+条全量）**：`python scripts/full_comments_fetcher.py "<signed_url>" --limit 500 -o output.json`
 
 ### 步骤 3：数据清洗与综合交付
 - 将抓取的 YAML/JSON 数据整合为结构化摘要；
@@ -88,10 +89,10 @@ flowchart TD
 3. **媒体下载按需分流**：
    - 图文笔记：`download` 自动提取全部轮播多图无水印高清原图（`1.jpg`, `2.jpg`...）；
    - 视频笔记：`download` 自动穿透嗅探原始高清 `.mp4` 视频流文件与封面大图。
-4. **评论抓取最大化（Mobile 模式优先）**：
-   - 小红书 Web 端因平台策略，首屏仅下发 10 个根评论（全量评论仅在手机 App 端浏览）；
-   - **抓取评论时务必将 URL 替换为 `m.xiaohongshu.com` 移动端域名**，可自动触发“展开更多回复”，将样本量从 Desktop 的约 18 条大幅提升至 **75+ 条**（提升 4 倍以上）；
-   - 撰写评论分析报告时，应同时汇报：`API 元数据总数（如 376 条）` 与 `Web 端实际采集样本数（如 75 条，覆盖率约 20%）`。
+4. **评论抓取按需分级策略**：
+   - **快速抽样模式**：调用 `opencli xiaohongshu comments`（自动切换移动端域名），秒级提取前排高赞与核心楼中楼约 75 条样本；
+   - **全量深度抓取模式**：当用户明确要求“全量分析/抓取所有评论”或评论数较多时，调用 `python scripts/full_comments_fetcher.py "<url>" --limit 500`，通过连续滚动与递归展开抓取 **200~300+ 条全量数据**！
+   - 撰写评论分析报告时，汇报实际采集条数与主楼覆盖情况。
 
 ---
 

@@ -49,10 +49,10 @@ flowchart TD
 | **📖 单篇正文详情** | `note` | • `note-id`：带 `xsec_token` 的笔记直链或**手机短链** | • `title`：完整标题<br>• `author`：作者昵称<br>• `content`：**全文长文正文（保留段落与格式）**<br>• `likes`：点赞数<br>• `collects`：收藏数<br>• `comments`：评论数<br>• `tags`：所有 `#话题标签` 列表 | 深度干货长文精读、Prompt 与行业方法论提炼 |
 | **💾 媒体高清下载** | `download` | • `note-id`：带签名的笔记 URL 或**手机短链**<br>• `--output`：本地保存目录 | • **图文笔记**：按轮播顺序无水印原图（`1.jpg`, `2.jpg`...）<br>• **视频笔记**：原始 1080P/720P 高清 `.mp4` 视频与封面大图 | 多模态 Vision 大模型看图分析、Whisper 视频语音转文字 |
 | **💬 楼中楼评论树** | `comments` | • `note-id`：带签名的笔记 URL<br>• `--with-replies`：是否展开楼中楼<br>• `--limit`：条数（默认 20） | • `author`：评论者昵称<br>• `userId`：用户 ID<br>• `text`：评论内容<br>• `likes`：点赞数<br>• `time`：发布时间 + **IP 归属省份/国家**<br>• `is_reply`：是否为楼中楼子回复<br>• `reply_to`：**被回复人昵称（树状追溯）**<br>• `images`：评论晒图 CDN 列表 | 用户真实痛点挖掘、舆情风向分析、评论区互动复刻 |
+| **🔥 全量评论深度抓取** | `full_comments_fetcher.py` | • `url`：笔记 URL 或手机短链<br>• `--limit`：条数（支持 300/500/全量） | • `total`：采集评论总条数（实测可抓 **289+ 条**）<br>• `parentCount`：一级根楼层总数<br>• `comments`：包含全部楼中楼展开的多层级对话数组 | 突破单次 50 条上限，实现长笔记数百条全量评论地毯式采集 |
 | **🔗 短链自动解析** | 内置中间件 | • 手机 App 复制的任意文案或 `xhslink` 短链 | • `type`：`user` 博主 / `note` 笔记<br>• `user_id`：24 位博主 ID<br>• `note_id`：24 位笔记 ID<br>• `full_url`：302 重定向后的标准签名长链 | 消除移动端与 PC 端差异，随手粘贴即可无感抓取 |
 
 ---
-
 
 ## 文件目录结构
 
@@ -64,10 +64,11 @@ skill-xiaohongshu-opencli-fetcher/
 ├─ .gitignore                            # 忽略本地临时文件与媒体产物
 ├─ scripts/
 │  ├─ resolve_shortlink.py               # 移动端 302 分享短链自动解析中间件
+│  ├─ full_comments_fetcher.py           # 全量评论深度抓取工具 (突破 50 条上限，实测抓 289+ 条)
 │  └─ xhs_fetcher.py                     # 全功能 Python 封装与调度工具
 └─ references/
    ├─ opencli-setup-guide.md             # 3 步环境安装与配置 SOP
-   ├─ commands-reference.md              # 6 大命令参数与实测数据结构手册
+   ├─ commands-reference.md              # 核心命令参数与实测数据结构手册
    └─ troubleshooting.md                 # 常见错误自愈排查指南
 ```
 
