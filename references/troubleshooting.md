@@ -13,6 +13,7 @@
 | **`DAEMON_OFFLINE`**<br>(守护进程未启动) | Node.js 后台守护进程未监听 19825 端口 | 终端执行：`opencli daemon restart` 或 `opencli doctor` 自动唤醒守护服务 |
 | **`EMPTY_RESULT`**<br>(返回无数据) | 1. 传入了未解析的移动端短链 (`xhslink`)<br>2. 笔记已被作者删除/设为私密<br>3. 博主主页确实无公开笔记 | 1. 确认短链是否先调用了 `resolve_shortlink.py` 解析为长链<br>2. 尝试在 Chrome 浏览器中手动打开链接核验是否存在 |
 | **`SECURITY_BLOCK`**<br>(安全限制拦截) | 传入了不带 `xsec_token` 的裸笔记 ID 触发了小红书网关拦截 | 必须先通过 `search` / `feed` / `user` 获取包含 `?xsec_token=...` 的签名 URL 再访问详情 |
+| **评论抓取数少于元数据**<br>(显示300+却只抓几十条) | 1. 小红书 Web 端策略限制只展示 10 条根评论（全量需在 App 端看）<br>2. Desktop 模式隐藏了楼中楼展开按钮 | 1. **将 URL 域名替换为 `m.xiaohongshu.com`** 移动端模式抓取，自动展开楼中楼（样本量从 18 提升至 75+ 条）<br>2. 在报告中明确注明：API 元数据总数与 Web 实际采集样本覆盖率 |
 
 ---
 

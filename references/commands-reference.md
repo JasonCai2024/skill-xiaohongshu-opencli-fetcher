@@ -153,3 +153,9 @@ opencli xiaohongshu comments "<带签名的 URL>" --with-replies -f yaml
   reply_to: Lucy
   images: []
 ```
+
+> 💡 **重要工程技巧：Desktop 模式 vs Mobile 模式（样本量 18 ➔ 75+）**
+> - **Desktop 模式（`www.xiaohongshu.com`）**：受限于小红书 Web 端的导流策略，一级评论固定只渲染 10 条，且 DOM 中隐藏了楼中楼展开按钮，通常仅能抓取约 18 条；
+> - **Mobile 模式（`m.xiaohongshu.com`，强烈推荐）**：将 URL 域名替换为 `m.xiaohongshu.com`，可自动触发页面“展开 17/29 条回复”按钮，将全部楼中楼子回复深度展开，**抓取条数大幅提升至 75+ 条（提升 4 倍以上）**！
+> - **元数据 vs 实际样本**：笔记 metadata 中显示的评论总数（如 376 条）是历史全量总计，全量仅能在手机 App 内部滚动浏览。Web 端抓取 75 条已覆盖前排最高赞的核心讨论（覆盖率约 20%）。
+
