@@ -25,9 +25,9 @@
 
 | 核心能力 | 你可以这样向 AI 助理说（自然语言触发） | 底层执行命令（AI 智能体标准调度） |
 |---|---|---|
-| 🔍 **关键词搜索** | *“搜一下小红书上关于 **DeepSeek 实操** 的热门笔记”* | `python scripts/xhs_fetcher.py search "<query>" --limit 20` |
+| 🔍 **关键词搜索（分页/全量）** | *“搜一下小红书关于 **DeepSeek** 的所有笔记 / 抓第 2 页”* | `python scripts/xhs_fetcher.py search "<query>" --all`（全量穷尽）<br>`python scripts/xhs_fetcher.py search "<query>" --limit 20 --page 2`（指定页码） |
 | 🏠 **首页推荐流** | *“抓一下现在小红书**首页推荐**的前 20 篇笔记”* | `python scripts/xhs_fetcher.py feed --limit 20` |
-| 👤 **博主主页作品** | *“看看**这个博主**的所有笔记：`https://xhslink.cn/m/xxx`”* | `python scripts/xhs_fetcher.py user "<博主ID>" --limit 15` |
+| 👤 **博主全量作品（穷尽抓取）** | *“抓出**这个博主的所有历史笔记**：`https://xhslink.cn/m/xxx`”* | `python scripts/xhs_fetcher.py user "<博主ID>" --all`（全量抓取至触底）<br>`python scripts/xhs_fetcher.py user "<博主ID>" --limit 15`（抽样抓取） |
 | 📝 **单篇笔记正文** | *“把**这篇笔记**的完整正文和文案读出来：`<链接>`”* | `python scripts/xhs_fetcher.py note "<签名URL>"` |
 | 📥 **多图/视频下载** | *“把这篇笔记的**无水印图片/高清视频**下载到 `D:/xhs/`”* | `python scripts/xhs_fetcher.py download "<签名URL>" --output "<目录>"` |
 | 💬 **快速评论抽样** | *“抓一下这篇笔记的评论区对话（快速模式）”* | `python scripts/xhs_fetcher.py comments "<签名URL>"` |
