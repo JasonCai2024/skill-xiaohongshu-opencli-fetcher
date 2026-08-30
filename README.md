@@ -11,25 +11,26 @@
 
 本技能专门通过 **本地 OpenCLI 守护进程 + 桌面 Chrome 真实浏览器扩展**，为 AI 智能体提供安全合规的小红书全维度数据采集与深度分析能力。
 
-### 🌟 3 大核心卖点：
+### 🌟 4 大核心卖点：
 - 🟢 **免维护 Cookie**：直接继承您本机日常使用的真实 Chrome 登录态，告别繁琐抓包与频繁失效的 Cookie；
 - 🟢 **零风控封禁风险**：原生真实浏览器操作与指纹特征，非模拟 HTTP 爬虫协议，安全稳定；
-- 🟢 **ServiceHub 会员专享**：核心调度与分析引擎采用 PyArmor 工业级二进制加密保护，专属于 ServiceHub 注册会员。
+- 🟢 **ServiceHub 数据库自动沉淀**：每次检索、正文阅读与评论抓取，后台**全自动静默同步至 ServiceHub 集中数据库**，零成本搭建团队私有知识库；
+- 🟢 **跨平台全能适配**：原生支持 Windows、macOS (Apple Silicon M系列 + Intel)、Linux，开箱即用。
 
 ---
 
 ## ⚡ 二、能做什么 & 怎么对 AI 助理说（8 大核心能力）
 
-用户无需记忆任何技术参数，**直接对 AI 助理说人话**即可触发对应能力；底层 CLI 命令同时为 AI 智能体提供标准调度规范：
+用户无需记忆任何技术参数，**直接对 AI 助理说人话**即可触发对应能力；底层 Python 命令同时为 AI 智能体提供标准调度规范：
 
-| 核心能力 | 你可以这样向 AI 助理说（自然语言触发） | 底层执行命令（AI 智能体调度） |
+| 核心能力 | 你可以这样向 AI 助理说（自然语言触发） | 底层执行命令（AI 智能体标准调度） |
 |---|---|---|
-| 🔍 **关键词搜索** | *“搜一下小红书上关于 **DeepSeek 实操** 的热门笔记”* | `opencli xiaohongshu search "<query>" --limit 20 -f yaml` |
-| 🏠 **首页推荐流** | *“抓一下现在小红书**首页推荐**的前 20 篇笔记”* | `opencli xiaohongshu feed --limit 20 -f yaml` |
-| 👤 **博主主页作品** | *“看看**这个博主**的所有笔记：`https://xhslink.cn/m/xxx`”* | `opencli xiaohongshu user <博主ID> --limit 15 -f yaml` |
-| 📝 **单篇笔记正文** | *“把**这篇笔记**的完整正文和文案读出来：`<链接>`”* | `opencli xiaohongshu note "<签名URL>" -f yaml` |
-| 📥 **多图/视频下载** | *“把这篇笔记的**无水印图片/高清视频**下载到 `D:/xhs/`”* | `opencli xiaohongshu download "<签名URL>" --output "<目录>" -f yaml` |
-| 💬 **快速评论抽样** | *“抓一下这篇笔记的评论区对话（快速模式）”* | `opencli xiaohongshu comments "<签名URL>" --with-replies -f yaml` |
+| 🔍 **关键词搜索** | *“搜一下小红书上关于 **DeepSeek 实操** 的热门笔记”* | `python scripts/xhs_fetcher.py search "<query>" --limit 20` |
+| 🏠 **首页推荐流** | *“抓一下现在小红书**首页推荐**的前 20 篇笔记”* | `python scripts/xhs_fetcher.py feed --limit 20` |
+| 👤 **博主主页作品** | *“看看**这个博主**的所有笔记：`https://xhslink.cn/m/xxx`”* | `python scripts/xhs_fetcher.py user "<博主ID>" --limit 15` |
+| 📝 **单篇笔记正文** | *“把**这篇笔记**的完整正文和文案读出来：`<链接>`”* | `python scripts/xhs_fetcher.py note "<签名URL>"` |
+| 📥 **多图/视频下载** | *“把这篇笔记的**无水印图片/高清视频**下载到 `D:/xhs/`”* | `python scripts/xhs_fetcher.py download "<签名URL>" --output "<目录>"` |
+| 💬 **快速评论抽样** | *“抓一下这篇笔记的评论区对话（快速模式）”* | `python scripts/xhs_fetcher.py comments "<签名URL>"` |
 | 🔥 **全量深度抓取** | *“抓这篇笔记的全部评论，递归展开所有楼中楼”* | `python scripts/full_comments_fetcher.py "<URL>" --limit 500` |
 | 🧠 **高价值评论分析** | *“**分析这篇笔记的评论区**，提炼需求、同行引流和行业内幕”* | `python scripts/analyze_comments.py "<URL>" --title "<标题>"` |
 | 🔗 **短链自动解析** | *“把这个手机分享短链解析成长链：`https://xhslink.cn/a/xxx`”* | `python scripts/resolve_shortlink.py "<短链>"` |
@@ -41,22 +42,22 @@
 ### 场景 1：行业热点追踪 + 爆款长文精读
 > 💬 **用户需求**：*“帮我搜一下小红书上关于‘AI 智能体实战’的热门笔记，并把点赞最高的一篇正文完整读出来。”*
 * **AI 助理自动执行**：
-  1. 执行 `search "AI 智能体实战"` 获取热门笔记列表及官方 `xsec_token` 签名长链；
+  1. 执行 `python scripts/xhs_fetcher.py search "AI 智能体实战"` 获取热门笔记列表及官方 `xsec_token` 签名长链；
   2. 自动选取点赞排名前 1 的笔记链接；
-  3. 执行 `note <签名URL>` 提取完整长文正文、段落标签与互动指标；
-  4. 为您提炼核心方法论与实操要点。
+  3. 执行 `python scripts/xhs_fetcher.py note "<签名URL>"` 提取完整长文正文、段落标签与互动指标；
+  4. 为您提炼核心方法论与实操要点，同时后台自动将笔记沉淀至数据库。
 
 ### 场景 2：对标博主一键深度调研
 > 💬 **用户需求**：*“我想调研这个博主的所有作品：`https://xhslink.cn/m/uWP0uFkbut`”*
 * **AI 助理自动执行**：
-  1. 自动调用 `resolve_shortlink.py` 解析手机短链，逆向提取出 24 位博主 ID；
-  2. 执行 `user <博主ID>` 批量抓取该博主近期发布的 15 篇图文与视频作品；
+  1. 自动调用 `python scripts/resolve_shortlink.py` 解析手机短链，逆向提取出 24 位博主 ID；
+  2. 执行 `python scripts/xhs_fetcher.py user "<博主ID>"` 批量抓取该博主近期发布的 15 篇图文与视频作品；
   3. 为您结构化梳理其选题方向、爆款规律与封面视觉风格。
 
 ### 场景 3：爆款评论区 100% 全景原声洞察
 > 💬 **用户需求**：*“请对这篇爆款笔记的评论区进行分析：`<笔记链接>`”*
 * **AI 助理自动执行**：
-  1. 调用 `full_comments_fetcher.py` 驱动浏览器递归展开全部楼中楼子回复（抓满 140+ 条 Web 极限数据）；
+  1. 调用 `python scripts/analyze_comments.py "<笔记链接>"` 驱动浏览器递归展开全部楼中楼子回复（抓满 140+ 条 Web 极限数据）；
   2. 自动过滤 40% 的比心、纯表情等无实质水评；
   3. 按照 **《高价值评论分析框架》** 自动输出包含【需求痛点】、【同行截流】、【实质争议】、【行业内幕】与【人群靶向切片】的 3 大板块全景报告。
 
