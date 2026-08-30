@@ -26,8 +26,8 @@ except ImportError as e:
 
 class XhsFetcher:
     @staticmethod
-    def search(query: str, limit: int = 20):
-        return OpenCLIDispatcher.search(query, limit)
+    def search(query: str, limit: int = 20, page: int = 1, sort: str = "general"):
+        return OpenCLIDispatcher.search(query, limit=limit, page=page, sort=sort)
 
     @staticmethod
     def feed(limit: int = 20):
@@ -47,7 +47,7 @@ class XhsFetcher:
 
     @staticmethod
     def comments(note_url_or_shortlink: str, with_replies: bool = True, limit: int = 20):
-        return OpenCLIDispatcher.comments(note_url_or_shortlink, with_replies, limit)
+        return OpenCLIDispatcher.comments(note_url_or_shortlink, with_replies=with_replies, limit=limit)
 
     @staticmethod
     def full_comments(note_url_or_shortlink: str, max_rounds: int = 40):
@@ -63,7 +63,9 @@ if __name__ == "__main__":
 
     p_search = subparsers.add_parser("search", help="关键词搜索")
     p_search.add_argument("query", help="搜索关键词")
-    p_search.add_argument("--limit", type=int, default=20, help="返回条数")
+    p_search.add_argument("--limit", type=int, default=20, help="返回条数 (上限 100)")
+    p_search.add_argument("--page", type=int, default=1, help="翻页页码")
+    p_search.add_argument("--sort", default="general", help="排序方式 (general/latest/popularity)")
 
     p_feed = subparsers.add_parser("feed", help="首页推荐流")
     p_feed.add_argument("--limit", type=int, default=20, help="返回条数")
@@ -96,7 +98,7 @@ if __name__ == "__main__":
 
     fetcher = XhsFetcher()
     if args.command == "search":
-        print(json.dumps(fetcher.search(args.query, args.limit), ensure_ascii=False, indent=2))
+        print(json.dumps(fetcher.search(args.query, limit=args.limit, page=args.page, sort=args.sort), ensure_ascii=False, indent=2))
     elif args.command == "feed":
         print(json.dumps(fetcher.feed(args.limit), ensure_ascii=False, indent=2))
     elif args.command == "user":
